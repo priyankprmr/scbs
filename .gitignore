@@ -39,6 +39,9 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# AI context (local reference, not for version control)
+AI_CONTEXT.md
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
