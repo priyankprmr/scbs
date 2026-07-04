@@ -30,6 +30,10 @@ class _BillingScreenState extends State<BillingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('New Bill')),
+      bottomNavigationBar: ElevatedButton(
+        onPressed: () {},
+        child: const Text('Save Bill'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
@@ -39,24 +43,19 @@ class _BillingScreenState extends State<BillingScreen> {
             msController: _msController,
             moController: _moController,
           ),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 4),
           _ItemsTable(
             qty1Controller: _qty1Controller,
             rate1Controller: _rate1Controller,
             particular1Controller: _particular1Controller,
             motorPumpController: _motorPumpController,
           ),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 4),
           _Terms(),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 4),
           _Total(),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 4),
           _Footer(),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text('Save Bill'),
-          ),
           const SizedBox(height: 12),
         ],
       ),
@@ -87,16 +86,14 @@ class _Header extends StatelessWidget {
         Text(
           'SHIVAM AIR COOLER',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(),
-          ),
+          decoration: BoxDecoration(border: Border.all()),
           child: Text(
             'All Type Of Cooler Sales & Service',
             style: Theme.of(context).textTheme.titleSmall,
@@ -165,7 +162,7 @@ class _CustomerBillInfo extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        // const SizedBox(width: 8),
         Expanded(
           flex: 2,
           child: Card(
@@ -181,16 +178,20 @@ class _CustomerBillInfo extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text('Bill No. ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Bill No. ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const Text('INV-0001'),
                     ],
                   ),
                   const Divider(),
                   Row(
                     children: [
-                      const Text('Date ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Date ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const Text('04 Jul 2026'),
                     ],
                   ),
@@ -253,8 +254,7 @@ class _TableHeader extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 32, child: Text('No.', style: _s)),
-          const Expanded(
-              flex: 3, child: Text('Particulars', style: _s)),
+          const Expanded(flex: 3, child: Text('Particulars', style: _s)),
           const SizedBox(width: 40, child: Text('Qty.', style: _s)),
           const SizedBox(width: 60, child: Text('Rate', style: _s)),
           const SizedBox(width: 70, child: Text('Amount', style: _s)),
@@ -319,8 +319,9 @@ class _CoolerRow extends StatelessWidget {
             width: 60,
             child: TextField(
               controller: rateController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               textAlign: TextAlign.center,
               decoration: const InputDecoration(
                 border: InputBorder.none,
@@ -372,9 +373,9 @@ class _MotorPumpRow extends StatelessWidget {
 class _Terms extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        );
+    final style = Theme.of(
+      context,
+    ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600);
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -421,16 +422,18 @@ class _Total extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('TOTAL',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
-            Text('\u20B9 —',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'TOTAL',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '\u20B9 —',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -463,11 +466,15 @@ class _Footer extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('For, SHIVAM AIR COOLER',
-                style: style?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'For, SHIVAM AIR COOLER',
+              style: style?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 32),
-            const Text('(Signature)',
-                style: TextStyle(decoration: TextDecoration.overline)),
+            const Text(
+              '(Signature)',
+              style: TextStyle(decoration: TextDecoration.overline),
+            ),
           ],
         ),
       ],
