@@ -1,23 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/utils/currency_formatter.dart';
-import '../../../data/models/customer.dart';
-import '../../../data/models/order_item.dart';
-import '../../../data/models/product.dart';
-import '../../../data/repositories/order_repository.dart';
-import '../../bloc/billing/billing_bloc.dart';
-import '../../bloc/billing/billing_event.dart';
-import '../../bloc/billing/billing_state.dart';
-import '../../bloc/customer/customer_bloc.dart';
-import '../../bloc/customer/customer_event.dart';
-import '../../bloc/customer/customer_state.dart';
-import '../../bloc/product/product_bloc.dart';
-import '../../bloc/product/product_event.dart';
-import '../../bloc/product/product_state.dart';
-import '../../widgets/bill_summary_card.dart';
-import '../../widgets/empty_state.dart';
-import '../order/order_detail_screen.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
@@ -27,531 +8,400 @@ class BillingScreen extends StatefulWidget {
 }
 
 class _BillingScreenState extends State<BillingScreen> {
-  final _discountController = TextEditingController();
-  final _notesController = TextEditingController();
+  final _msController = TextEditingController();
+  final _moController = TextEditingController();
+  final _qty1Controller = TextEditingController();
+  final _rate1Controller = TextEditingController();
+  final _qty2Controller = TextEditingController();
+  final _rate2Controller = TextEditingController();
 
   @override
   void dispose() {
-    _discountController.dispose();
-    _notesController.dispose();
+    _msController.dispose();
+    _moController.dispose();
+    _qty1Controller.dispose();
+    _rate1Controller.dispose();
+    _qty2Controller.dispose();
+    _rate2Controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: context.read<CustomerBloc>()),
-        BlocProvider.value(value: context.read<ProductBloc>()),
-        BlocProvider(
-          create: (_) =>
-              BillingBloc(RepositoryProvider.of<OrderRepository>(context)),
-        ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(title: const Text('New Bill')),
-        body: BlocBuilder<BillingBloc, BillingState>(
-          builder: (context, state) {
-            if (state.isSaving) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state.savedOrder != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _onBillSaved(context, state);
-              });
-            }
-
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _CustomerSection(state: state),
-                      const SizedBox(height: 16),
-                      _ItemsSection(state: state),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _discountController,
-                        decoration: const InputDecoration(
-                          labelText: 'Discount',
-                          prefixText: '\u{20B9} ',
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
-                        onChanged: (v) {
-                          final d = double.tryParse(v) ?? 0;
-                          context
-                              .read<BillingBloc>()
-                              .add(SetDiscount(d));
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _notesController,
-                        decoration:
-                            const InputDecoration(labelText: 'Notes'),
-                        maxLines: 2,
-                      ),
-                    ],
-                  ),
-                ),
-                BillSummaryCard(state: state),
-                _ActionBar(state: state, notesController: _notesController),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  void _onBillSaved(BuildContext context, BillingState state) {
-    final savedOrder = state.savedOrder!;
-    context.read<BillingBloc>().add(const ClearBill());
-    _discountController.clear();
-    _notesController.clear();
-    _showSuccessDialog(context, savedOrder);
-  }
-
-  void _showSuccessDialog(BuildContext context, dynamic savedOrder) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Bill Saved'),
-        content: Text('${savedOrder.invoiceNo} saved successfully.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Continue Billing'),
+    return Scaffold(
+      appBar: AppBar(title: const Text('New Bill')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _Header(),
+          const SizedBox(height: 16),
+          _CustomerBillInfo(
+            msController: _msController,
+            moController: _moController,
           ),
+          const SizedBox(height: 16),
+          _ItemsTable(
+            qty1Controller: _qty1Controller,
+            rate1Controller: _rate1Controller,
+            qty2Controller: _qty2Controller,
+            rate2Controller: _rate2Controller,
+          ),
+          const SizedBox(height: 16),
+          _Terms(),
+          const SizedBox(height: 16),
+          _Total(),
+          const SizedBox(height: 16),
+          _Footer(),
+          const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OrderDetailScreen(order: savedOrder),
-                ),
-              );
-            },
-            child: const Text('View Invoice'),
+            onPressed: () {},
+            child: const Text('Save Bill'),
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 }
 
-class _CustomerSection extends StatelessWidget {
-  final BillingState state;
-
-  const _CustomerSection({required this.state});
-
+class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Customer',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton.icon(
-                  onPressed: () => _selectCustomer(context),
-                  icon: const Icon(Icons.person_add),
-                  label: Text(
-                      state.selectedCustomer != null ? 'Change' : 'Select'),
-                ),
-              ],
-            ),
-            if (state.selectedCustomer != null) ...[
-              const Divider(),
-              Text(state.selectedCustomer!.name,
-                  style: Theme.of(context).textTheme.bodyLarge),
-              Text(state.selectedCustomer!.phone),
-            ],
-          ],
+    return Column(
+      children: [
+        Center(
+          child: Text(
+            '\u0965\u0965 \u0ab6\u0acd\u0ab0\u0ac0 \u0a97\u0aa3\u0ac7\u0ab6\u0abe\u0aaf \u0aa8\u0aae\u0a83 \u0965\u0965',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
-      ),
-    );
-  }
-
-  void _selectCustomer(BuildContext context) {
-    context.read<CustomerBloc>().add(const LoadCustomers());
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => _CustomerPicker(onSelect: (customer) {
-          context.read<BillingBloc>().add(SelectCustomer(customer));
-          Navigator.pop(context);
-        }),
-      ),
-    );
-  }
-}
-
-class _CustomerPicker extends StatefulWidget {
-  final void Function(Customer) onSelect;
-
-  const _CustomerPicker({required this.onSelect});
-
-  @override
-  State<_CustomerPicker> createState() => _CustomerPickerState();
-}
-
-class _CustomerPickerState extends State<_CustomerPicker> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Select Customer')),
-      body: BlocBuilder<CustomerBloc, CustomerState>(
-        builder: (context, state) {
-          if (state is CustomerLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is CustomerLoaded) {
-            if (state.customers.isEmpty) {
-              return const EmptyState(
-                icon: Icons.people_outline,
-                message: 'No customers',
-              );
-            }
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'Search customers...',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                    onChanged: (q) => context
-                        .read<CustomerBloc>()
-                        .add(SearchCustomers(q)),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.customers.length,
-                    itemBuilder: (context, index) {
-                      final c = state.customers[index];
-                      return ListTile(
-                        title: Text(c.name),
-                        subtitle: Text(c.phone),
-                        onTap: () => widget.onSelect(c),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-          if (state is CustomerError) {
-            return Center(child: Text(state.message));
-          }
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-}
-
-class _ItemsSection extends StatelessWidget {
-  final BillingState state;
-
-  const _ItemsSection({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Items',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton.icon(
-                  onPressed: () => _addItem(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Item'),
-                ),
-              ],
-            ),
-            if (state.items.isNotEmpty) ...[
-              const Divider(),
-              ...state.items.map((item) => _ItemRow(
-                    item: item,
-                    onQtyChanged: (qty) {
-                      context
-                          .read<BillingBloc>()
-                          .add(UpdateItemQty(item.productId, qty));
-                    },
-                    onRemove: () {
-                      context
-                          .read<BillingBloc>()
-                          .add(RemoveItem(item.productId));
-                    },
-                  )),
-            ],
-          ],
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            'M. 97257 54672',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ),
-      ),
-    );
-  }
-
-  void _addItem(BuildContext context) {
-    context.read<ProductBloc>().add(const LoadProducts());
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => _ProductPicker(onSelect: (product, qty) {
-          context
-              .read<BillingBloc>()
-              .add(AddItem(product, quantity: qty));
-          Navigator.pop(context);
-        }),
-      ),
-    );
-  }
-}
-
-class _ProductPicker extends StatefulWidget {
-  final void Function(Product product, int qty) onSelect;
-
-  const _ProductPicker({required this.onSelect});
-
-  @override
-  State<_ProductPicker> createState() => _ProductPickerState();
-}
-
-class _ProductPickerState extends State<_ProductPicker> {
-  final _searchController = TextEditingController();
-  final _qtyController = TextEditingController(text: '1');
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _qtyController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Product')),
-      body: BlocBuilder<ProductBloc, ProductState>(
-        builder: (context, state) {
-          if (state is ProductLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is ProductLoaded) {
-            if (state.products.isEmpty) {
-              return const EmptyState(
-                icon: Icons.inventory_2_outlined,
-                message: 'No products',
-              );
-            }
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: const InputDecoration(
-                            hintText: 'Search products...',
-                            prefixIcon: Icon(Icons.search),
-                          ),
-                          onChanged: (q) => context
-                              .read<ProductBloc>()
-                              .add(SearchProducts(q)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 80,
-                        child: TextField(
-                          controller: _qtyController,
-                          decoration:
-                              const InputDecoration(labelText: 'Qty'),
-                          keyboardType: TextInputType.number,
-                          onChanged: (v) {
-                            final q = int.tryParse(v);
-                            if (q != null && q > 0) {
-                              _qtyController.text = q.toString();
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.products.length,
-                    itemBuilder: (context, index) {
-                      final p = state.products[index];
-                      return ListTile(
-                        title: Text(p.name),
-                        subtitle: Text(
-                            '${p.category} \u2014 ${formatCurrency(p.price)}'),
-                        onTap: () {
-                          final qty =
-                              int.tryParse(_qtyController.text) ?? 1;
-                          widget.onSelect(p, qty);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-          if (state is ProductError) {
-            return Center(child: Text(state.message));
-          }
-          return const SizedBox.shrink();
-        },
-      ),
+        const SizedBox(height: 8),
+        Text(
+          'SHIVAM AIR COOLER',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(),
+          ),
+          child: Text(
+            'All Type Of Cooler Sales & Service',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Nr. Ramapir Temple, Prakashnagar, Chandlodiya, Ahmedabad.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 }
 
-class _ItemRow extends StatelessWidget {
-  final OrderItem item;
-  final void Function(int) onQtyChanged;
-  final VoidCallback onRemove;
+class _CustomerBillInfo extends StatelessWidget {
+  final TextEditingController msController;
+  final TextEditingController moController;
 
-  const _ItemRow({
-    required this.item,
-    required this.onQtyChanged,
-    required this.onRemove,
+  const _CustomerBillInfo({
+    required this.msController,
+    required this.moController,
   });
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: msController,
+                    decoration: const InputDecoration(
+                      labelText: 'M/s.',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      isDense: true,
+                    ),
+                  ),
+                  const Divider(),
+                  TextField(
+                    controller: moController,
+                    decoration: const InputDecoration(
+                      labelText: 'Mo.',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      isDense: true,
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text('Bill No. ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('INV-0001'),
+                    ],
+                  ),
+                  const Divider(),
+                  Row(
+                    children: [
+                      const Text('Date ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('04 Jul 2026'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ItemsTable extends StatelessWidget {
+  final TextEditingController qty1Controller;
+  final TextEditingController rate1Controller;
+  final TextEditingController qty2Controller;
+  final TextEditingController rate2Controller;
+
+  const _ItemsTable({
+    required this.qty1Controller,
+    required this.rate1Controller,
+    required this.qty2Controller,
+    required this.rate2Controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            _TableHeader(),
+            const Divider(),
+            _TableRow(
+              no: '1',
+              particular: '\u0a8f\u0ab0 \u0a95\u0ac1\u0ab2\u0ab0 ___________',
+              qtyController: qty1Controller,
+              rateController: rate1Controller,
+            ),
+            const Divider(height: 1),
+            _TableRow(
+              no: '2',
+              particular:
+                  '\u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0',
+              qtyController: qty2Controller,
+              rateController: rate2Controller,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TableHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
+          const SizedBox(width: 32, child: Text('No.', style: _s)),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.productName,
-                    style: Theme.of(context).textTheme.bodyLarge),
-                Text(formatCurrency(item.price),
-                    style: Theme.of(context).textTheme.bodySmall),
-              ],
+              flex: 3,
+              child: Text('Particulars', style: _s)),
+          const SizedBox(width: 40, child: Text('Qty.', style: _s)),
+          const SizedBox(width: 60, child: Text('Rate', style: _s)),
+          const SizedBox(width: 70, child: Text('Amount', style: _s)),
+        ],
+      ),
+    );
+  }
+
+  static const _s = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
+}
+
+class _TableRow extends StatelessWidget {
+  final String no;
+  final String particular;
+  final TextEditingController qtyController;
+  final TextEditingController rateController;
+
+  const _TableRow({
+    required this.no,
+    required this.particular,
+    required this.qtyController,
+    required this.rateController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          SizedBox(width: 32, child: Text(no)),
+          Expanded(flex: 3, child: Text(particular)),
+          SizedBox(
+            width: 40,
+            child: TextField(
+              controller: qtyController,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+              ),
             ),
           ),
           SizedBox(
-            width: 44,
-            child: IconButton(
-              icon:
-                  const Icon(Icons.remove_circle_outline, size: 20),
-              onPressed: () => onQtyChanged(item.quantity - 1),
-              padding: EdgeInsets.zero,
+            width: 60,
+            child: TextField(
+              controller: rateController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+              ),
             ),
           ),
-          SizedBox(
-            width: 30,
-            child: Text('${item.quantity}',
-                textAlign: TextAlign.center),
-          ),
-          SizedBox(
-            width: 44,
-            child: IconButton(
-              icon:
-                  const Icon(Icons.add_circle_outline, size: 20),
-              onPressed: () => onQtyChanged(item.quantity + 1),
-              padding: EdgeInsets.zero,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(formatCurrency(item.subtotal),
-              style: Theme.of(context).textTheme.bodyMedium),
-          IconButton(
-            icon: const Icon(Icons.delete_outline,
-                size: 20, color: Colors.red),
-            onPressed: onRemove,
-          ),
+          const SizedBox(width: 70, child: Text('—')),
         ],
       ),
     );
   }
 }
 
-class _ActionBar extends StatelessWidget {
-  final BillingState state;
-  final TextEditingController notesController;
-
-  const _ActionBar({
-    required this.state,
-    required this.notesController,
-  });
-
+class _Terms extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    final style = Theme.of(context).textTheme.bodySmall;
+    return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Row(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: state.items.isNotEmpty
-                    ? () => context
-                        .read<BillingBloc>()
-                        .add(const ClearBill())
-                    : null,
-                child: const Text('Clear'),
-              ),
+            Text(
+              '\u25cf \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0 \u0aae\u0abe\u0a82 \u0ab9\u0acb\u0ab5\u0abe \u0a9b\u0aa4\u0abe \u0a9c\u0acb \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0a86\u0ab5\u0ac7 \u0aa4\u0acb \u0a9a\u0abe\u0ab0\u0acd\u0a9c \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7.',
+              style: style,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton(
-                onPressed: state.canSave
-                    ? () => context.read<BillingBloc>().add(
-                          SaveBill(notes: notesController.text.trim()),
-                        )
-                    : null,
-                child: const Text('Save Bill'),
-              ),
+            const SizedBox(height: 4),
+            Text(
+              '\u25cf \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0\u0ac0\u0a82\u0a97 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82 \u0a86\u0ab5\u0ac7.',
+              style: style,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '\u25cf \u0ab5\u0ac7\u0a9a\u0ac7\u0ab2\u0acb \u0aae\u0abe\u0ab2 \u0aaa\u0abe\u0a9b\u0acb \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82.',
+              style: style,
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Total extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('TOTAL',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            Text('\u20B9 —',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodySmall;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('\u2022 Subject to Ahmedabad Jurisdiction', style: style),
+              Text('\u2022 Fix Rate... Thanks...', style: style),
+              Text(
+                '\u2022 \u0ab5\u0ac7\u0a9a\u0ac7\u0ab2\u0acb \u0aae\u0abe\u0ab2 \u0aaa\u0abe\u0a9b\u0acb \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82.',
+                style: style,
+              ),
+              Text('E.\u0026.O.E.', style: style),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text('For, SHIVAM AIR COOLER',
+                style: style?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 32),
+            const Text('(Signature)',
+                style: TextStyle(decoration: TextDecoration.overline)),
+          ],
+        ),
+      ],
     );
   }
 }
