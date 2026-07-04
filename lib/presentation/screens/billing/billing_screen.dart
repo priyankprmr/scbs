@@ -161,93 +161,86 @@ class _CustomerBillInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
       children: [
-        Expanded(
-          flex: 3,
-          child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFB71C1C)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: msController,
-                    decoration: const InputDecoration(
-                      labelText: 'M/s.',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                    ),
-                  ),
-                  const Divider(),
-                  TextField(
-                    controller: moController,
-                    decoration: const InputDecoration(
-                      labelText: 'Mo.',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const Divider(),
-                  TextField(
-                    controller: addressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Address',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                    ),
-                    maxLines: 2,
-                  ),
-                ],
-              ),
-            ),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFFB71C1C)),
           ),
-        ),
-        // const SizedBox(width: 8),
-        Expanded(
-          flex: 2,
-          child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFB71C1C)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
-                      const Text(
-                        'Bill No. ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Bill No. ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       const Text('INV-0001'),
                     ],
                   ),
-                  const Divider(),
-                  Row(
+                ),
+                Container(width: 1, height: 20, color: const Color(0xFFB71C1C)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
                     children: [
-                      const Text(
-                        'Date ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Date ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       const Text('04 Jul 2026'),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFFB71C1C)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: msController,
+                  decoration: const InputDecoration(
+                    labelText: 'M/s.',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                  ),
+                ),
+                const Divider(),
+                TextField(
+                  controller: moController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mo.',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                const Divider(),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Address',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                  ),
+                  maxLines: 2,
+                ),
+              ],
             ),
           ),
         ),
