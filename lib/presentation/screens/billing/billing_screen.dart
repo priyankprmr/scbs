@@ -130,6 +130,11 @@ class _CustomerBillInfo extends StatelessWidget {
         Expanded(
           flex: 3,
           child: Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Colors.red),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -164,6 +169,11 @@ class _CustomerBillInfo extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Colors.red),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -210,6 +220,11 @@ class _ItemsTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Colors.red),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -361,6 +376,11 @@ class _Terms extends StatelessWidget {
           fontWeight: FontWeight.w600,
         );
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Colors.red),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -391,6 +411,11 @@ class _Total extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Colors.red),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
