@@ -48,10 +48,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           onPressed: () => _showSearch(context),
         ),
       ],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openForm(context, null),
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _openForm(context, null),
+      //   child: const Icon(Icons.add),
+      // ),
       master: _buildMaster(context),
       detail: tablet ? _buildDetail(context) : null,
     );
@@ -69,7 +69,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             return const EmptyState(
               icon: Icons.people_outline,
               message: 'No customers yet',
-              actionLabel: 'Add Customer',
+              // actionLabel: 'Add Customer',
             );
           }
           return ListView.builder(
@@ -116,23 +116,23 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     }
   }
 
-  void _openForm(BuildContext context, Customer? customer) {
-    if (ResponsiveScaffold.isTablet(context)) {
-      setState(() => _selectedCustomer = customer);
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: context.read<CustomerBloc>(),
-            child: CustomerFormScreen(customer: customer),
-          ),
-        ),
-      ).then((_) {
-        setState(() => _selectedCustomer = null);
-      });
-    }
-  }
+  // void _openForm(BuildContext context, Customer? customer) {
+  //   if (ResponsiveScaffold.isTablet(context)) {
+  //     setState(() => _selectedCustomer = customer);
+  //   } else {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (_) => BlocProvider.value(
+  //           value: context.read<CustomerBloc>(),
+  //           child: CustomerFormScreen(customer: customer),
+  //         ),
+  //       ),
+  //     ).then((_) {
+  //       setState(() => _selectedCustomer = null);
+  //     });
+  //   }
+  // }
 
   Future<void> _deleteCustomer(BuildContext context, Customer customer) async {
     final confirm = await showConfirmDialog(
