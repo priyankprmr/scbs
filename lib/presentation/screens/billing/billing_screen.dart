@@ -56,7 +56,7 @@ class _BillingScreenState extends State<BillingScreen> {
           padding: const EdgeInsets.all(12),
           children: [
             _Header(),
-            const SizedBox(height: 8),
+            // const SizedBox(height: 8),
             _CustomerBillInfo(
               msController: _msController,
               moController: _moController,
@@ -174,6 +174,7 @@ class _CustomerBillInfo extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
+                  flex: 3,
                   child: Row(
                     children: [
                       const Text('Bill No. ',
@@ -185,19 +186,14 @@ class _CustomerBillInfo extends StatelessWidget {
                 Container(width: 1, height: 20, color: const Color(0xFFB71C1C)),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Row(
-                    children: [
-                      const Text('Date ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      const Text('04 Jul 2026'),
-                    ],
-                  ),
+                  flex: 1,
+                  child: const Text('04 Jul 2026', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        // const SizedBox(height: 4),
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
