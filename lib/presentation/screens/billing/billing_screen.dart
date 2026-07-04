@@ -332,9 +332,15 @@ class _CoolerRow extends StatelessWidget {
                   child: TextField(
                     controller: particularController,
                     decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       isDense: true,
+                      filled: true,
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                   ),
                 ),
@@ -348,7 +354,9 @@ class _CoolerRow extends StatelessWidget {
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               decoration: const InputDecoration(
-                border: InputBorder.none,
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                ),
                 contentPadding: EdgeInsets.zero,
                 isDense: true,
               ),
@@ -363,7 +371,9 @@ class _CoolerRow extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
               decoration: const InputDecoration(
-                border: InputBorder.none,
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                ),
                 contentPadding: EdgeInsets.zero,
                 isDense: true,
               ),
@@ -397,7 +407,9 @@ class _MotorPumpRow extends StatelessWidget {
             child: TextField(
               controller: controller,
               decoration: const InputDecoration(
-                border: InputBorder.none,
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                ),
                 contentPadding: EdgeInsets.zero,
                 isDense: true,
               ),
