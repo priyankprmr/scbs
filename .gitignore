@@ -41,6 +41,7 @@ app.*.map.json
 
 # AI context (local reference, not for version control)
 AI_CONTEXT.md
+bill_layout.md
 
 # Android Studio will place build artifacts here
 /android/app/debug
