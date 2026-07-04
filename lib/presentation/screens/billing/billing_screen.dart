@@ -5,6 +5,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/customer.dart';
 import '../../../data/models/order_item.dart';
 import '../../../data/models/product.dart';
+import '../../../data/repositories/order_repository.dart';
 import '../../bloc/billing/billing_bloc.dart';
 import '../../bloc/billing/billing_event.dart';
 import '../../bloc/billing/billing_state.dart';
@@ -42,6 +43,10 @@ class _BillingScreenState extends State<BillingScreen> {
       providers: [
         BlocProvider.value(value: context.read<CustomerBloc>()),
         BlocProvider.value(value: context.read<ProductBloc>()),
+        BlocProvider(
+          create: (_) =>
+              BillingBloc(RepositoryProvider.of<OrderRepository>(context)),
+        ),
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('New Bill')),
