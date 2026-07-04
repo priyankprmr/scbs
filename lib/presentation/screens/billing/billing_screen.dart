@@ -30,15 +30,31 @@ class _BillingScreenState extends State<BillingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('New Bill')),
-      bottomNavigationBar: ElevatedButton(
-        onPressed: () {},
-        child: const Text('Save Bill'),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB71C1C),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 52),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Save Bill',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+        ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          _Header(),
-          const SizedBox(height: 8),
+      body: Container(
+        color: const Color(0xFFFEFAF6),
+        child: ListView(
+          padding: const EdgeInsets.all(12),
+          children: [
+            _Header(),
+            const SizedBox(height: 8),
           _CustomerBillInfo(
             msController: _msController,
             moController: _moController,
@@ -59,6 +75,7 @@ class _BillingScreenState extends State<BillingScreen> {
           const SizedBox(height: 12),
         ],
       ),
+      ),
     );
   }
 }
@@ -71,7 +88,9 @@ class _Header extends StatelessWidget {
         Center(
           child: Text(
             '\u0965\u0965 \u0ab6\u0acd\u0ab0\u0ac0 \u0a97\u0aa3\u0ac7\u0ab6\u0abe\u0aaf \u0aa8\u0aae\u0a83 \u0965\u0965',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: const Color(0xFFB71C1C),
+                ),
           ),
         ),
         const SizedBox(height: 4),
@@ -93,7 +112,9 @@ class _Header extends StatelessWidget {
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          decoration: BoxDecoration(border: Border.all()),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.red),
+          ),
           child: Text(
             'All Type Of Cooler Sales & Service',
             style: Theme.of(context).textTheme.titleSmall,
@@ -105,6 +126,8 @@ class _Header extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
+        const SizedBox(height: 8),
+        const Divider(color: Colors.red, thickness: 1),
       ],
     );
   }
@@ -249,8 +272,12 @@ class _ItemsTable extends StatelessWidget {
 class _TableHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: Row(
         children: [
           const SizedBox(width: 32, child: Text('No.', style: _s)),
@@ -263,7 +290,7 @@ class _TableHeader extends StatelessWidget {
     );
   }
 
-  static const _s = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
+  static const _s = TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB71C1C));
 }
 
 class _CoolerRow extends StatelessWidget {
@@ -413,12 +440,13 @@ class _Total extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      color: Colors.red.shade50,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: Colors.red),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -468,7 +496,10 @@ class _Footer extends StatelessWidget {
           children: [
             Text(
               'For, SHIVAM AIR COOLER',
-              style: style?.copyWith(fontWeight: FontWeight.bold),
+              style: style?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFFB71C1C),
+              ),
             ),
             const SizedBox(height: 32),
             const Text(
