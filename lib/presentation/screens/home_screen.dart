@@ -29,12 +29,12 @@ class HomeScreen extends StatelessWidget {
               color: Colors.blue,
               onTap: () => Navigator.pushNamed(context, '/customers'),
             ),
-            _Tile(
-              icon: Icons.inventory_2,
-              label: 'Products',
-              color: Colors.orange,
-              onTap: () => Navigator.pushNamed(context, '/products'),
-            ),
+            // _Tile(
+            //   icon: Icons.inventory_2,
+            //   label: 'Products',
+            //   color: Colors.orange,
+            //   onTap: () => Navigator.pushNamed(context, '/products'),
+            // ),
             _Tile(
               icon: Icons.history,
               label: 'Orders',
