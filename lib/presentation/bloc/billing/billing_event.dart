@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../data/models/customer.dart';
-import '../../../data/models/order_item.dart';
 import '../../../data/models/product.dart';
 
 sealed class BillingEvent extends Equatable {

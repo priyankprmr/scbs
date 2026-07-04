@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/utils/date_utils.dart';
 import '../../../data/models/customer.dart';
 import '../../bloc/customer/customer_bloc.dart';
 import '../../bloc/customer/customer_event.dart';
@@ -141,7 +140,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       title: 'Delete Customer',
       message: 'Delete ${customer.name}?',
     );
-    if (confirm == true) {
+    if (confirm == true && context.mounted) {
       context.read<CustomerBloc>().add(DeleteCustomer(customer.id));
       if (_selectedCustomer?.id == customer.id) {
         setState(() => _selectedCustomer = null);

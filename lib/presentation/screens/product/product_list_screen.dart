@@ -141,7 +141,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       title: 'Delete Product',
       message: 'Delete ${product.name}?',
     );
-    if (confirm == true) {
+    if (confirm == true && context.mounted) {
       context.read<ProductBloc>().add(DeleteProduct(product.id));
       if (_selectedProduct?.id == product.id) {
         setState(() => _selectedProduct = null);

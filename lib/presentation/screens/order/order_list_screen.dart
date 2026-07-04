@@ -114,7 +114,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
       title: 'Delete Order',
       message: 'Delete ${order.invoiceNo}?',
     );
-    if (confirm == true) {
+    if (confirm == true && context.mounted) {
       context.read<OrderBloc>().add(DeleteOrder(order.id));
       if (_selectedOrder?.id == order.id) {
         setState(() => _selectedOrder = null);
@@ -170,7 +170,7 @@ class _OrderListTile extends StatelessWidget {
     return ListTile(
       selected: isSelected,
       leading: CircleAvatar(
-        child: Text('${order.invoiceNo.substring(0, 3)}'),
+        child: Text(order.invoiceNo.substring(0, 3)),
       ),
       title: Text(order.invoiceNo),
       subtitle: Text(
