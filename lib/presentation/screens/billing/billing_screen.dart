@@ -88,43 +88,55 @@ class _Header extends StatelessWidget {
         Center(
           child: Text(
             '\u0965\u0965 \u0ab6\u0acd\u0ab0\u0ac0 \u0a97\u0aa3\u0ac7\u0ab6\u0abe\u0aaf \u0aa8\u0aae\u0a83 \u0965\u0965',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: const Color(0xFFB71C1C),
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Align(
           alignment: Alignment.centerRight,
           child: Text(
             'M. 97257 54672',
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey.shade700,
+                ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           'SHIVAM AIR COOLER',
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFFB71C1C),
+                letterSpacing: 2,
+              ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.red),
+            color: const Color(0xFFB71C1C),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             'All Type Of Cooler Sales & Service',
-            style: Theme.of(context).textTheme.titleSmall,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1,
+                ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           'Nr. Ramapir Temple, Prakashnagar, Chandlodiya, Ahmedabad.',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
         const Divider(color: Colors.red, thickness: 1),
@@ -153,7 +165,7 @@ class _CustomerBillInfo extends StatelessWidget {
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Colors.red),
+              side: const BorderSide(color: Color(0xFFB71C1C)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -192,7 +204,7 @@ class _CustomerBillInfo extends StatelessWidget {
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Colors.red),
+              side: const BorderSide(color: Color(0xFFB71C1C)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -247,7 +259,7 @@ class _ItemsTable extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.red),
+        side: const BorderSide(color: Color(0xFFB71C1C)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -407,7 +419,7 @@ class _Terms extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.red),
+        side: const BorderSide(color: Color(0xFFB71C1C)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -443,7 +455,7 @@ class _Total extends StatelessWidget {
       color: Colors.red.shade50,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.red),
+        side: const BorderSide(color: Color(0xFFB71C1C)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

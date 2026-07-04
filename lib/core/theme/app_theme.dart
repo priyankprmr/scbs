@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static const Color primaryColor = Color(0xFF1565C0);
-  static const Color accentColor = Color(0xFF42A5F5);
+  static const Color primaryColor = Color(0xFFB71C1C);
+  static const Color accentColor = Color(0xFFE53935);
 
   static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
       colorSchemeSeed: primaryColor,
       brightness: Brightness.light,
+      textTheme: GoogleFonts.notoSerifTextTheme(),
       appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 1,
