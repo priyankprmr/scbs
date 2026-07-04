@@ -10,6 +10,7 @@ class BillingScreen extends StatefulWidget {
 class _BillingScreenState extends State<BillingScreen> {
   final _msController = TextEditingController();
   final _moController = TextEditingController();
+  final _addressController = TextEditingController();
   final _qty1Controller = TextEditingController();
   final _rate1Controller = TextEditingController();
   final _particular1Controller = TextEditingController();
@@ -19,6 +20,7 @@ class _BillingScreenState extends State<BillingScreen> {
   void dispose() {
     _msController.dispose();
     _moController.dispose();
+    _addressController.dispose();
     _qty1Controller.dispose();
     _rate1Controller.dispose();
     _particular1Controller.dispose();
@@ -55,26 +57,27 @@ class _BillingScreenState extends State<BillingScreen> {
           children: [
             _Header(),
             const SizedBox(height: 8),
-          _CustomerBillInfo(
-            msController: _msController,
-            moController: _moController,
-          ),
-          // const SizedBox(height: 4),
-          _ItemsTable(
-            qty1Controller: _qty1Controller,
-            rate1Controller: _rate1Controller,
-            particular1Controller: _particular1Controller,
-            motorPumpController: _motorPumpController,
-          ),
-          // const SizedBox(height: 4),
-          _Terms(),
-          // const SizedBox(height: 4),
-          _Total(),
-          // const SizedBox(height: 4),
-          _Footer(),
-          const SizedBox(height: 12),
-        ],
-      ),
+            _CustomerBillInfo(
+              msController: _msController,
+              moController: _moController,
+              addressController: _addressController,
+            ),
+            // const SizedBox(height: 4),
+            _ItemsTable(
+              qty1Controller: _qty1Controller,
+              rate1Controller: _rate1Controller,
+              particular1Controller: _particular1Controller,
+              motorPumpController: _motorPumpController,
+            ),
+            // const SizedBox(height: 4),
+            _Terms(),
+            // const SizedBox(height: 4),
+            _Total(),
+            // const SizedBox(height: 4),
+            _Footer(),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
@@ -148,10 +151,12 @@ class _Header extends StatelessWidget {
 class _CustomerBillInfo extends StatelessWidget {
   final TextEditingController msController;
   final TextEditingController moController;
+  final TextEditingController addressController;
 
   const _CustomerBillInfo({
     required this.msController,
     required this.moController,
+    required this.addressController,
   });
 
   @override
@@ -191,6 +196,17 @@ class _CustomerBillInfo extends StatelessWidget {
                       isDense: true,
                     ),
                     keyboardType: TextInputType.phone,
+                  ),
+                  const Divider(),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Address',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      isDense: true,
+                    ),
+                    maxLines: 2,
                   ),
                 ],
               ),
@@ -302,7 +318,8 @@ class _TableHeader extends StatelessWidget {
     );
   }
 
-  static const _s = TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB71C1C));
+  static const _s = TextStyle(
+      fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB71C1C));
 }
 
 class _CoolerRow extends StatelessWidget {
@@ -331,16 +348,20 @@ class _CoolerRow extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: particularController,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 6, vertical: 12),
                       filled: true,
-                      fillColor: Color(0xFFF5F5F5),
+                      fillColor: Colors.white,
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFDCBABA)),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Color(0xFFB71C1C), width: 1.5),
+                      ),
                     ),
                   ),
                 ),
@@ -353,12 +374,20 @@ class _CoolerRow extends StatelessWidget {
               controller: qtyController,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
-                border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                ),
-                contentPadding: EdgeInsets.zero,
                 isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
+                ),
               ),
             ),
           ),
@@ -366,16 +395,23 @@ class _CoolerRow extends StatelessWidget {
             width: 60,
             child: TextField(
               controller: rateController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
-                border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                ),
-                contentPadding: EdgeInsets.zero,
                 isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
+                ),
               ),
             ),
           ),
@@ -406,12 +442,20 @@ class _MotorPumpRow extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
+              style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
-                border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                ),
-                contentPadding: EdgeInsets.zero,
                 isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
+                ),
               ),
             ),
           ),
@@ -424,9 +468,10 @@ class _MotorPumpRow extends StatelessWidget {
 class _Terms extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(
-      context,
-    ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600);
+    final style = Theme.of(context)
+        .textTheme
+        .bodyMedium
+        ?.copyWith(fontWeight: FontWeight.w600);
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -476,15 +521,17 @@ class _Total extends StatelessWidget {
           children: [
             Text(
               'TOTAL',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               '\u20B9 —',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
