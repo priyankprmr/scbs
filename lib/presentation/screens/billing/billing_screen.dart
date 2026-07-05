@@ -169,28 +169,15 @@ class _CustomerBillInfo extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
+            child: const Row(
               children: [
-                Expanded(
-                  flex: 3,
-                  child: Row(
-                    children: [
-                      const Text(
-                        'Bill No. ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Text('INV-0001'),
-                    ],
-                  ),
+                Text(
+                  'Date: ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Container(width: 1, height: 20, color: const Color(0xFFB71C1C)),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 1,
-                  child: const Text(
-                    '04 Jul 2026',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                Text(
+                  '04 Jul 2026',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),

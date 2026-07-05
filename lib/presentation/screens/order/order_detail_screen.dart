@@ -28,7 +28,6 @@ class OrderDetailScreen extends StatelessWidget {
                       style: theme.textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.bold)),
                   const Divider(),
-                  _infoRow('Invoice No', order.invoiceNo),
                   _infoRow('Date', formatDateTime(order.date)),
                 ],
               ),
