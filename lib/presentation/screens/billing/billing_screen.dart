@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+class _ItemRowControllers {
+  final TextEditingController particular = TextEditingController();
+  final TextEditingController qty = TextEditingController();
+  final TextEditingController rate = TextEditingController();
+
+  void dispose() {
+    particular.dispose();
+    qty.dispose();
+    rate.dispose();
+  }
+}
+
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
 
@@ -10,20 +22,27 @@ class BillingScreen extends StatefulWidget {
 class _BillingScreenState extends State<BillingScreen> {
   final _msController = TextEditingController();
   final _moController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _qty1Controller = TextEditingController();
-  final _rate1Controller = TextEditingController();
-  final _particular1Controller = TextEditingController();
+  final List<_ItemRowControllers> _itemRows = [_ItemRowControllers()];
 
   @override
   void dispose() {
     _msController.dispose();
     _moController.dispose();
-    _addressController.dispose();
-    _qty1Controller.dispose();
-    _rate1Controller.dispose();
-    _particular1Controller.dispose();
+    for (final row in _itemRows) {
+      row.dispose();
+    }
     super.dispose();
+  }
+
+  void _addRow() {
+    setState(() => _itemRows.add(_ItemRowControllers()));
+  }
+
+  void _removeRow(int index) {
+    setState(() {
+      _itemRows[index].dispose();
+      _itemRows.removeAt(index);
+    });
   }
 
   @override
@@ -45,23 +64,16 @@ class _BillingScreenState extends State<BillingScreen> {
           padding: const EdgeInsets.all(12),
           children: [
             _Header(),
-            // const SizedBox(height: 8),
             _CustomerBillInfo(
               msController: _msController,
               moController: _moController,
-              addressController: _addressController,
             ),
-            // const SizedBox(height: 4),
-            _ItemsTable(
-              qty1Controller: _qty1Controller,
-              rate1Controller: _rate1Controller,
-              particular1Controller: _particular1Controller,
+            _ItemsAndTerms(
+              itemRows: _itemRows,
+              onAddRow: _addRow,
+              onRemoveRow: _removeRow,
             ),
-            // const SizedBox(height: 4),
-            _Terms(),
-            // const SizedBox(height: 4),
             _Total(),
-            // const SizedBox(height: 4),
             _Footer(),
             const SizedBox(height: 12),
           ],
@@ -80,9 +92,9 @@ class _Header extends StatelessWidget {
           child: Text(
             '\u0965\u0965 \u0ab6\u0acd\u0ab0\u0ac0 \u0a97\u0aa3\u0ac7\u0ab6\u0abe\u0aaf \u0aa8\u0aae\u0a83 \u0965\u0965',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: const Color(0xFFB71C1C),
-                  fontWeight: FontWeight.w600,
-                ),
+              color: const Color(0xFFB71C1C),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         const SizedBox(height: 2),
@@ -91,9 +103,9 @@ class _Header extends StatelessWidget {
           child: Text(
             'M. 97257 54672',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey.shade700,
-                ),
+              fontStyle: FontStyle.italic,
+              color: Colors.grey.shade700,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -101,10 +113,10 @@ class _Header extends StatelessWidget {
           'SHIVAM AIR COOLER',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFFB71C1C),
-                letterSpacing: 2,
-              ),
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFFB71C1C),
+            letterSpacing: 2,
+          ),
         ),
         const SizedBox(height: 10),
         Container(
@@ -117,10 +129,10 @@ class _Header extends StatelessWidget {
             'All Type Of Cooler Sales & Service',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1,
+            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -139,12 +151,10 @@ class _Header extends StatelessWidget {
 class _CustomerBillInfo extends StatelessWidget {
   final TextEditingController msController;
   final TextEditingController moController;
-  final TextEditingController addressController;
 
   const _CustomerBillInfo({
     required this.msController,
     required this.moController,
-    required this.addressController,
   });
 
   @override
@@ -165,8 +175,10 @@ class _CustomerBillInfo extends StatelessWidget {
                   flex: 3,
                   child: Row(
                     children: [
-                      const Text('Bill No. ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Bill No. ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const Text('INV-0001'),
                     ],
                   ),
@@ -175,13 +187,15 @@ class _CustomerBillInfo extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 1,
-                  child: const Text('04 Jul 2026', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    '04 Jul 2026',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        // const SizedBox(height: 4),
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -213,17 +227,6 @@ class _CustomerBillInfo extends StatelessWidget {
                   ),
                   keyboardType: TextInputType.phone,
                 ),
-                const Divider(),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
-                  ),
-                  maxLines: 2,
-                ),
               ],
             ),
           ),
@@ -233,201 +236,19 @@ class _CustomerBillInfo extends StatelessWidget {
   }
 }
 
-class _ItemsTable extends StatelessWidget {
-  final TextEditingController qty1Controller;
-  final TextEditingController rate1Controller;
-  final TextEditingController particular1Controller;
+class _ItemsAndTerms extends StatelessWidget {
+  final List<_ItemRowControllers> itemRows;
+  final VoidCallback onAddRow;
+  final void Function(int) onRemoveRow;
 
-  const _ItemsTable({
-    required this.qty1Controller,
-    required this.rate1Controller,
-    required this.particular1Controller,
+  const _ItemsAndTerms({
+    required this.itemRows,
+    required this.onAddRow,
+    required this.onRemoveRow,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Color(0xFFB71C1C)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            _TableHeader(),
-            const Divider(),
-            _CoolerRow(
-              qtyController: qty1Controller,
-              rateController: rate1Controller,
-              particularController: particular1Controller,
-            ),
-            const Divider(height: 1),
-            const _GuaranteeRow(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TableHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 32, child: Text('No.', style: _s)),
-          const Expanded(flex: 3, child: Text('Particulars', style: _s)),
-          const SizedBox(width: 40, child: Text('Qty.', style: _s)),
-          const SizedBox(width: 60, child: Text('Rate', style: _s)),
-        ],
-      ),
-    );
-  }
-
-  static const _s = TextStyle(
-      fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB71C1C));
-}
-
-class _CoolerRow extends StatelessWidget {
-  final TextEditingController qtyController;
-  final TextEditingController rateController;
-  final TextEditingController particularController;
-
-  const _CoolerRow({
-    required this.qtyController,
-    required this.rateController,
-    required this.particularController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          const SizedBox(width: 32, child: Text('1')),
-          Expanded(
-            flex: 3,
-            child: Row(
-              children: [
-                Text('\u0a8f\u0ab0 \u0a95\u0ac1\u0ab2\u0ab0 '),
-                Expanded(
-                  child: TextField(
-                    controller: particularController,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFDCBABA)),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color(0xFFB71C1C), width: 1.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 40,
-            child: TextField(
-              controller: qtyController,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 60,
-            child: TextField(
-              controller: rateController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GuaranteeRow extends StatelessWidget {
-  const _GuaranteeRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          const SizedBox(width: 32, child: Text('2')),
-          const SizedBox(width: 12, child: Text(':')),
-          Expanded(
-            child: Text(
-              '\u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0  6',
-              style: const TextStyle(
-                color: Color(0xFFB71C1C),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Terms extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context)
-        .textTheme
-        .bodyMedium
-        ?.copyWith(fontWeight: FontWeight.w600);
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -439,21 +260,162 @@ class _Terms extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '\u25cf \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0 \u0aae\u0abe\u0a82 \u0ab9\u0acb\u0ab5\u0abe \u0a9b\u0aa4\u0abe \u0a9c\u0acb \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0a86\u0ab5\u0ac7 \u0aa4\u0acb \u0a9a\u0abe\u0ab0\u0acd\u0a9c \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7.',
-              style: style,
-            ),
+            ...List.generate(itemRows.length, (index) {
+              return _ItemRow(
+                controllers: itemRows[index],
+                showRemove: itemRows.length > 1,
+                onRemove: () => onRemoveRow(index),
+              );
+            }),
             const SizedBox(height: 4),
-            Text(
-              '\u25cf \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0\u0ac0\u0a82\u0a97 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82 \u0a86\u0ab5\u0ac7.',
-              style: style,
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton.filled(
+                icon: const Icon(Icons.add),
+                onPressed: onAddRow,
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFB71C1C),
+                  foregroundColor: Colors.white,
+                ),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              '\u25cf \u0ab5\u0ac7\u0a9a\u0ac7\u0ab2\u0acb \u0aae\u0abe\u0ab2 \u0aaa\u0abe\u0a9b\u0acb \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82.',
-              style: style,
+            const Divider(height: 16),
+            ..._terms(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _terms(BuildContext context) {
+    const style = TextStyle(
+      color: Color(0xFFB71C1C),
+      fontWeight: FontWeight.bold,
+      fontSize: 17,
+    );
+    return [
+      Text(
+        '\u25cf \u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0  6 months',
+        style: style,
+      ),
+      const SizedBox(height: 10),
+      Text(
+        '\u25cf \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0 \u0aae\u0abe\u0a82 \u0ab9\u0acb\u0ab5\u0abe \u0a9b\u0aa4\u0abe \u0a9c\u0acb \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0a86\u0ab5\u0ac7 \u0aa4\u0acb \u0a9a\u0abe\u0ab0\u0acd\u0a9c \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7.',
+        style: style,
+      ),
+      const SizedBox(height: 6),
+      Text(
+        '\u25cf \u0a95\u0ac1\u0ab2\u0ab0 \u0ab0\u0ac0\u0aaa\u0ac7\u0ab0\u0ac0\u0a82\u0a97 \u0a95\u0ab0\u0ab5\u0abe \u0aae\u0abe\u0aa3\u0ab8 \u0a98\u0ab0\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82 \u0a86\u0ab5\u0ac7.',
+        style: style,
+      ),
+      const SizedBox(height: 6),
+      Text(
+        '\u25cf \u0ab5\u0ac7\u0a9a\u0ac7\u0ab2\u0acb \u0aae\u0abe\u0ab2 \u0aaa\u0abe\u0a9b\u0acb \u0ab2\u0ac7\u0ab5\u0abe\u0aae\u0abe\u0a82 \u0a86\u0ab5\u0ab6\u0ac7 \u0aa8\u0ab9\u0ac0\u0a82.',
+        style: style,
+      ),
+    ];
+  }
+}
+
+class _ItemRow extends StatelessWidget {
+  final _ItemRowControllers controllers;
+  final bool showRemove;
+  final VoidCallback onRemove;
+
+  const _ItemRow({
+    required this.controllers,
+    required this.showRemove,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: _EditableField(
+              controller: controllers.particular,
+              // \u0a8f\u0ab0 \u0a95\u0ac1\u0ab2\u0ab0
+              label: 'Particulars',
+            ),
+          ),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 56,
+            child: _EditableField(
+              controller: controllers.qty,
+              label: 'Qty.',
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 72,
+            child: _EditableField(
+              controller: controllers.rate,
+              label: 'Rate',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          if (showRemove) ...[
+            const SizedBox(width: 4),
+            SizedBox(
+              width: 36,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.remove_circle_outline,
+                  size: 20,
+                  color: Color(0xFFB71C1C),
+                ),
+                onPressed: onRemove,
+                padding: EdgeInsets.zero,
+              ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _EditableField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final TextInputType? keyboardType;
+  final TextAlign textAlign;
+
+  const _EditableField({
+    required this.controller,
+    required this.label,
+    this.keyboardType,
+    this.textAlign = TextAlign.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      textAlign: textAlign,
+      style: Theme.of(context).textTheme.bodyMedium,
+      decoration: InputDecoration(
+        labelText: label,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFDCBABA)),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFB71C1C), width: 1.5),
         ),
       ),
     );
@@ -477,17 +439,15 @@ class _Total extends StatelessWidget {
           children: [
             Text(
               'TOTAL',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               '\u20B9 —',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
