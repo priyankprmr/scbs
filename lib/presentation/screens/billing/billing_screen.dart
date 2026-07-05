@@ -14,7 +14,6 @@ class _BillingScreenState extends State<BillingScreen> {
   final _qty1Controller = TextEditingController();
   final _rate1Controller = TextEditingController();
   final _particular1Controller = TextEditingController();
-  final _motorPumpController = TextEditingController();
 
   @override
   void dispose() {
@@ -24,31 +23,21 @@ class _BillingScreenState extends State<BillingScreen> {
     _qty1Controller.dispose();
     _rate1Controller.dispose();
     _particular1Controller.dispose();
-    _motorPumpController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Bill')),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: ElevatedButton(
+      appBar: AppBar(
+        title: const Text('New Bill'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            tooltip: 'Save Bill',
             onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB71C1C),
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('Save Bill',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
-        ),
+        ],
       ),
       body: Container(
         color: const Color(0xFFFEFAF6),
@@ -67,7 +56,6 @@ class _BillingScreenState extends State<BillingScreen> {
               qty1Controller: _qty1Controller,
               rate1Controller: _rate1Controller,
               particular1Controller: _particular1Controller,
-              motorPumpController: _motorPumpController,
             ),
             // const SizedBox(height: 4),
             _Terms(),
@@ -249,13 +237,11 @@ class _ItemsTable extends StatelessWidget {
   final TextEditingController qty1Controller;
   final TextEditingController rate1Controller;
   final TextEditingController particular1Controller;
-  final TextEditingController motorPumpController;
 
   const _ItemsTable({
     required this.qty1Controller,
     required this.rate1Controller,
     required this.particular1Controller,
-    required this.motorPumpController,
   });
 
   @override
@@ -278,7 +264,7 @@ class _ItemsTable extends StatelessWidget {
               particularController: particular1Controller,
             ),
             const Divider(height: 1),
-            _MotorPumpRow(controller: motorPumpController),
+            const _GuaranteeRow(),
           ],
         ),
       ),
@@ -301,7 +287,6 @@ class _TableHeader extends StatelessWidget {
           const Expanded(flex: 3, child: Text('Particulars', style: _s)),
           const SizedBox(width: 40, child: Text('Qty.', style: _s)),
           const SizedBox(width: 60, child: Text('Rate', style: _s)),
-          const SizedBox(width: 70, child: Text('Amount', style: _s)),
         ],
       ),
     );
@@ -404,17 +389,14 @@ class _CoolerRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 70, child: Text('—')),
         ],
       ),
     );
   }
 }
 
-class _MotorPumpRow extends StatelessWidget {
-  final TextEditingController controller;
-
-  const _MotorPumpRow({required this.controller});
+class _GuaranteeRow extends StatelessWidget {
+  const _GuaranteeRow();
 
   @override
   Widget build(BuildContext context) {
@@ -424,27 +406,12 @@ class _MotorPumpRow extends StatelessWidget {
         children: [
           const SizedBox(width: 32, child: Text('2')),
           const SizedBox(width: 12, child: Text(':')),
-          Text(
-            '\u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0',
-          ),
-          const SizedBox(width: 8),
           Expanded(
-            child: TextField(
-              controller: controller,
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFDCBABA)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Color(0xFFB71C1C), width: 1.5),
-                ),
+            child: Text(
+              '\u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0  6',
+              style: const TextStyle(
+                color: Color(0xFFB71C1C),
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

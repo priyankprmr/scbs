@@ -22,13 +22,14 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       phone: fields[2] == null ? '' : fields[2] as String,
       invoicePrefix: fields[3] as String,
       invoiceCounter: (fields[4] as num).toInt(),
+      guaranteeMonths: fields[5] == null ? 6 : (fields[5] as num).toInt(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.businessName)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       ..writeByte(3)
       ..write(obj.invoicePrefix)
       ..writeByte(4)
-      ..write(obj.invoiceCounter);
+      ..write(obj.invoiceCounter)
+      ..writeByte(5)
+      ..write(obj.guaranteeMonths);
   }
 
   @override

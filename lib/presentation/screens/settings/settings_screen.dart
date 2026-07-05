@@ -48,6 +48,7 @@ class _SettingsFormState extends State<_SettingsForm> {
   late final TextEditingController _addressController;
   late final TextEditingController _phoneController;
   late final TextEditingController _prefixController;
+  late final TextEditingController _guaranteeMonthsController;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -61,6 +62,8 @@ class _SettingsFormState extends State<_SettingsForm> {
         TextEditingController(text: widget.settings.phone);
     _prefixController =
         TextEditingController(text: widget.settings.invoicePrefix);
+    _guaranteeMonthsController = TextEditingController(
+        text: widget.settings.guaranteeMonths.toString());
   }
 
   @override
@@ -69,6 +72,7 @@ class _SettingsFormState extends State<_SettingsForm> {
     _addressController.dispose();
     _phoneController.dispose();
     _prefixController.dispose();
+    _guaranteeMonthsController.dispose();
     super.dispose();
   }
 
@@ -102,6 +106,13 @@ class _SettingsFormState extends State<_SettingsForm> {
             controller: _prefixController,
             decoration: const InputDecoration(labelText: 'Invoice Prefix'),
           ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _guaranteeMonthsController,
+            decoration:
+                const InputDecoration(labelText: 'Motor Pump Guarantee (Months)'),
+            keyboardType: TextInputType.number,
+          ),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _save,
@@ -120,6 +131,8 @@ class _SettingsFormState extends State<_SettingsForm> {
       address: _addressController.text.trim(),
       phone: _phoneController.text.trim(),
       invoicePrefix: _prefixController.text.trim(),
+      guaranteeMonths:
+          int.tryParse(_guaranteeMonthsController.text.trim()) ?? 6,
     );
 
     context.read<SettingsBloc>().add(UpdateSettings(updated));

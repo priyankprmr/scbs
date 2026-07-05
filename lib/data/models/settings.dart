@@ -22,12 +22,16 @@ class Settings extends Equatable {
   @HiveField(4)
   final int invoiceCounter;
 
+  @HiveField(5)
+  final int guaranteeMonths;
+
   const Settings({
     required this.businessName,
     this.address = '',
     this.phone = '',
     required this.invoicePrefix,
     required this.invoiceCounter,
+    this.guaranteeMonths = 6,
   });
 
   factory Settings.defaults() {
@@ -35,6 +39,7 @@ class Settings extends Equatable {
       businessName: defaultBusinessName,
       invoicePrefix: defaultInvoicePrefix,
       invoiceCounter: defaultInvoiceCounter,
+      guaranteeMonths: 6,
     );
   }
 
@@ -44,6 +49,7 @@ class Settings extends Equatable {
     String? phone,
     String? invoicePrefix,
     int? invoiceCounter,
+    int? guaranteeMonths,
   }) {
     return Settings(
       businessName: businessName ?? this.businessName,
@@ -51,10 +57,11 @@ class Settings extends Equatable {
       phone: phone ?? this.phone,
       invoicePrefix: invoicePrefix ?? this.invoicePrefix,
       invoiceCounter: invoiceCounter ?? this.invoiceCounter,
+      guaranteeMonths: guaranteeMonths ?? this.guaranteeMonths,
     );
   }
 
   @override
   List<Object?> get props =>
-      [businessName, address, phone, invoicePrefix, invoiceCounter];
+      [businessName, address, phone, invoicePrefix, invoiceCounter, guaranteeMonths];
 }
