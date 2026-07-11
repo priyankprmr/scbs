@@ -67,22 +67,31 @@ class _BillingScreenState extends State<BillingScreen> {
       ),
       body: Container(
         color: const Color(0xFFFEFAF6),
-        child: ListView(
-          padding: const EdgeInsets.all(12),
+        child: Column(
           children: [
-            _Header(),
-            _CustomerBillInfo(
-              msController: _msController,
-              moController: _moController,
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
+                  _Header(),
+                  _CustomerBillInfo(
+                    msController: _msController,
+                    moController: _moController,
+                  ),
+                  _ItemsAndTerms(
+                    itemRows: _itemRows,
+                    onAddRow: _addRow,
+                    onRemoveRow: _removeRow,
+                  ),
+                  const SizedBox(height: 20),
+                  _Total(),
+                ],
+              ),
             ),
-            _ItemsAndTerms(
-              itemRows: _itemRows,
-              onAddRow: _addRow,
-              onRemoveRow: _removeRow,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: _Footer(),
             ),
-            _Total(),
-            _Footer(),
-            const SizedBox(height: 12),
           ],
         ),
       ),
