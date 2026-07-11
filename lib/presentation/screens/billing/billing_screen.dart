@@ -288,14 +288,20 @@ class _BillingScreenState extends State<BillingScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    _Total(total: total),
+                    
                   ],
                 ),
               ),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                child: _Footer(),
+                child: Column(
+                  children: [
+                    _Total(total: total),
+                    const SizedBox(height: 12,),
+                    _Footer(),
+                  ],
+                ),
               ),
             ],
           ),
@@ -566,6 +572,18 @@ class _ItemRowState extends State<_ItemRow> {
     _updateAmount();
     widget.controllers.qty.addListener(_updateAmount);
     widget.controllers.rate.addListener(_updateAmount);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ItemRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controllers != widget.controllers) {
+      oldWidget.controllers.qty.removeListener(_updateAmount);
+      oldWidget.controllers.rate.removeListener(_updateAmount);
+      widget.controllers.qty.addListener(_updateAmount);
+      widget.controllers.rate.addListener(_updateAmount);
+      _updateAmount();
+    }
   }
 
   @override
