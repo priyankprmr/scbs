@@ -65,6 +65,10 @@ class _BillingScreenState extends State<BillingScreen> {
   void initState() {
     super.initState();
     context.read<SettingsBloc>().add(const LoadSettings());
+    for (final row in _itemRows) {
+      row.qty.addListener(_onRowChanged);
+      row.rate.addListener(_onRowChanged);
+    }
   }
 
   @override
@@ -72,18 +76,30 @@ class _BillingScreenState extends State<BillingScreen> {
     _msController.dispose();
     _moController.dispose();
     for (final row in _itemRows) {
+      row.qty.removeListener(_onRowChanged);
+      row.rate.removeListener(_onRowChanged);
       row.dispose();
     }
     super.dispose();
   }
 
+  void _onRowChanged() {
+    setState(() {});
+  }
+
   void _addRow() {
-    setState(() => _itemRows.add(_ItemRowControllers()));
+    final newRow = _ItemRowControllers();
+    newRow.qty.addListener(_onRowChanged);
+    newRow.rate.addListener(_onRowChanged);
+    setState(() => _itemRows.add(newRow));
   }
 
   void _removeRow(int index) {
     setState(() {
-      _itemRows[index].dispose();
+      final row = _itemRows[index];
+      row.qty.removeListener(_onRowChanged);
+      row.rate.removeListener(_onRowChanged);
+      row.dispose();
       _itemRows.removeAt(index);
     });
   }
@@ -188,10 +204,15 @@ class _BillingScreenState extends State<BillingScreen> {
       _msController.clear();
       _moController.clear();
       for (final row in _itemRows) {
+        row.qty.removeListener(_onRowChanged);
+        row.rate.removeListener(_onRowChanged);
         row.dispose();
       }
       _itemRows.clear();
-      _itemRows.add(_ItemRowControllers());
+      final newRow = _ItemRowControllers();
+      newRow.qty.addListener(_onRowChanged);
+      newRow.rate.addListener(_onRowChanged);
+      _itemRows.add(newRow);
       _isSaving = false;
     });
     context.read<BillingBloc>().add(const ClearBill());
