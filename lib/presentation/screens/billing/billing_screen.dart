@@ -5,6 +5,13 @@ class _ItemRowControllers {
   final TextEditingController qty = TextEditingController();
   final TextEditingController rate = TextEditingController();
 
+  String get amount {
+    final q = double.tryParse(qty.text);
+    final r = double.tryParse(rate.text);
+    if (q == null || r == null) return '\u2014';
+    return '\u20B9${(q * r).toStringAsFixed(0)}';
+  }
+
   void dispose() {
     particular.dispose();
     qty.dispose();
@@ -247,25 +254,17 @@ class _ItemsAndTerms extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildHeaderRow(),
+            const SizedBox(height: 6),
             ...List.generate(itemRows.length, (index) {
               return _ItemRow(
                 controllers: itemRows[index],
-                showRemove: itemRows.length > 1,
+                isLast: index == itemRows.length - 1,
+                canRemove: itemRows.length > 1,
+                onAdd: onAddRow,
                 onRemove: () => onRemoveRow(index),
               );
             }),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton.filled(
-                icon: const Icon(Icons.add),
-                onPressed: onAddRow,
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFB71C1C),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
             const Divider(height: 16),
             ..._terms(context),
           ],
@@ -274,11 +273,27 @@ class _ItemsAndTerms extends StatelessWidget {
     );
   }
 
+  Widget _buildHeaderRow() {
+    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 13);
+    return Row(
+      children: [
+        const SizedBox(width: 40),
+        const Expanded(flex: 4, child: Text('Particulars', style: style)),
+        const SizedBox(width: 6),
+        const Expanded(flex: 1, child: Text('Qty', style: style, textAlign: TextAlign.center)),
+        const SizedBox(width: 6),
+        const Expanded(flex: 1, child: Text('Rate', style: style, textAlign: TextAlign.center)),
+        const SizedBox(width: 6),
+        const Expanded(flex: 1, child: Text('Amount', style: style, textAlign: TextAlign.center)),
+      ],
+    );
+  }
+
   List<Widget> _terms(BuildContext context) {
     const style = TextStyle(
       color: Color(0xFFB71C1C),
       fontWeight: FontWeight.bold,
-      fontSize: 17,
+      fontSize: 22,
     );
     return [
       Text(
@@ -304,16 +319,46 @@ class _ItemsAndTerms extends StatelessWidget {
   }
 }
 
-class _ItemRow extends StatelessWidget {
+class _ItemRow extends StatefulWidget {
   final _ItemRowControllers controllers;
-  final bool showRemove;
+  final bool isLast;
+  final bool canRemove;
+  final VoidCallback onAdd;
   final VoidCallback onRemove;
 
   const _ItemRow({
     required this.controllers,
-    required this.showRemove,
+    required this.isLast,
+    required this.canRemove,
+    required this.onAdd,
     required this.onRemove,
   });
+
+  @override
+  State<_ItemRow> createState() => _ItemRowState();
+}
+
+class _ItemRowState extends State<_ItemRow> {
+  String _amount = '\u2014';
+
+  @override
+  void initState() {
+    super.initState();
+    _updateAmount();
+    widget.controllers.qty.addListener(_updateAmount);
+    widget.controllers.rate.addListener(_updateAmount);
+  }
+
+  @override
+  void dispose() {
+    widget.controllers.qty.removeListener(_updateAmount);
+    widget.controllers.rate.removeListener(_updateAmount);
+    super.dispose();
+  }
+
+  void _updateAmount() {
+    setState(() => _amount = widget.controllers.amount);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -321,51 +366,55 @@ class _ItemRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
+          SizedBox(
+            width: 40,
+            child: widget.isLast
+                ? IconButton(
+                    icon: const Icon(Icons.add_circle_outline, size: 22),
+                    padding: EdgeInsets.zero,
+                    color: const Color(0xFFB71C1C),
+                    onPressed: widget.onAdd,
+                  )
+                : widget.canRemove
+                    ? IconButton(
+                        icon: const Icon(Icons.remove_circle_outline, size: 22),
+                        padding: EdgeInsets.zero,
+                        color: const Color(0xFFB71C1C),
+                        onPressed: widget.onRemove,
+                      )
+                    : const SizedBox.shrink(),
+          ),
           Expanded(
             flex: 4,
-            child: _EditableField(
-              controller: controllers.particular,
-              // \u0a8f\u0ab0 \u0a95\u0ac1\u0ab2\u0ab0
-              label: 'Particulars',
-            ),
+            child: _EditableField(controller: widget.controllers.particular),
           ),
           const SizedBox(width: 6),
-          SizedBox(
-            width: 56,
+          Expanded(
+            flex: 1,
             child: _EditableField(
-              controller: controllers.qty,
-              label: 'Qty.',
+              controller: widget.controllers.qty,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(width: 6),
-          SizedBox(
-            width: 72,
+          Expanded(
+            flex: 1,
             child: _EditableField(
-              controller: controllers.rate,
-              label: 'Rate',
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
+              controller: widget.controllers.rate,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
             ),
           ),
-          if (showRemove) ...[
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 36,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.remove_circle_outline,
-                  size: 20,
-                  color: Color(0xFFB71C1C),
-                ),
-                onPressed: onRemove,
-                padding: EdgeInsets.zero,
-              ),
+          const SizedBox(width: 6),
+          Expanded(
+            flex: 1,
+            child: Text(
+              _amount,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -374,13 +423,11 @@ class _ItemRow extends StatelessWidget {
 
 class _EditableField extends StatelessWidget {
   final TextEditingController controller;
-  final String label;
   final TextInputType? keyboardType;
   final TextAlign textAlign;
 
   const _EditableField({
     required this.controller,
-    required this.label,
     this.keyboardType,
     this.textAlign = TextAlign.start,
   });
@@ -392,16 +439,13 @@ class _EditableField extends StatelessWidget {
       keyboardType: keyboardType,
       textAlign: textAlign,
       style: Theme.of(context).textTheme.bodyMedium,
-      decoration: InputDecoration(
-        labelText: label,
+      decoration: const InputDecoration(
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        filled: true,
-        fillColor: Colors.white,
-        enabledBorder: const UnderlineInputBorder(
+        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFFDCBABA)),
         ),
-        focusedBorder: const UnderlineInputBorder(
+        focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFFB71C1C), width: 1.5),
         ),
       ),
