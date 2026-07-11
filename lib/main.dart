@@ -7,6 +7,7 @@ import 'data/repositories/customer_repository.dart';
 import 'data/repositories/order_repository.dart';
 import 'data/repositories/product_repository.dart';
 import 'data/repositories/settings_repository.dart';
+import 'presentation/bloc/billing/billing_bloc.dart';
 import 'presentation/bloc/customer/customer_bloc.dart';
 import 'presentation/bloc/order/order_bloc.dart';
 import 'presentation/bloc/product/product_bloc.dart';
@@ -36,6 +37,9 @@ void main() async {
           BlocProvider(create: (_) => CustomerBloc(customerRepo)),
           BlocProvider(create: (_) => ProductBloc(productRepo)),
           BlocProvider(create: (_) => OrderBloc(orderRepo)),
+          BlocProvider(
+            create: (_) => BillingBloc(orderRepo, customerRepo),
+          ),
         ],
         child: const App(),
       ),

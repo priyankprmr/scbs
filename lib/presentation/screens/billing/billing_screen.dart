@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/validators.dart';
+import '../../../data/models/order.dart';
+import '../../../data/models/order_item.dart';
+import '../../bloc/billing/billing_bloc.dart';
+import '../../bloc/billing/billing_event.dart';
+import '../../bloc/billing/billing_state.dart';
+import '../../bloc/settings/settings_bloc.dart';
+import '../../bloc/settings/settings_event.dart';
+import '../../bloc/settings/settings_state.dart';
 
 class _ItemRowControllers {
   final TextEditingController particular = TextEditingController();
@@ -17,6 +30,22 @@ class _ItemRowControllers {
     qty.dispose();
     rate.dispose();
   }
+
+  OrderItem? toOrderItem() {
+    final name = particular.text.trim();
+    final q = int.tryParse(qty.text.trim());
+    final r = double.tryParse(rate.text.trim());
+    if (name.isEmpty || q == null || r == null || q <= 0 || r <= 0) {
+      return null;
+    }
+    return OrderItem(
+      productId: '',
+      productName: name,
+      price: r,
+      quantity: q,
+      subtotal: r * q,
+    );
+  }
 }
 
 class BillingScreen extends StatefulWidget {
@@ -30,6 +59,13 @@ class _BillingScreenState extends State<BillingScreen> {
   final _msController = TextEditingController();
   final _moController = TextEditingController();
   final List<_ItemRowControllers> _itemRows = [_ItemRowControllers()];
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<SettingsBloc>().add(const LoadSettings());
+  }
 
   @override
   void dispose() {
@@ -52,47 +88,196 @@ class _BillingScreenState extends State<BillingScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Bill'),
+  double _calculateTotal() {
+    double total = 0;
+    for (final row in _itemRows) {
+      final q = double.tryParse(row.qty.text.trim());
+      final r = double.tryParse(row.rate.text.trim());
+      if (q != null && r != null && q > 0 && r > 0) {
+        total += q * r;
+      }
+    }
+    return total;
+  }
+
+  String? _validate() {
+    final nameError = validateRequired(_msController.text);
+    if (nameError != null) return 'Customer name is required';
+
+    final phoneError = validatePhone(_moController.text);
+    if (phoneError != null) return phoneError;
+
+    final validRows = _itemRows
+        .map((r) => r.toOrderItem())
+        .where((oi) => oi != null)
+        .toList();
+    if (validRows.isEmpty) {
+      return 'Please add at least one item with valid particulars, qty, and rate';
+    }
+    return null;
+  }
+
+  void _validateAndSave() {
+    final error = _validate();
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: Colors.red.shade700),
+      );
+      return;
+    }
+
+    final items = _itemRows
+        .map((r) => r.toOrderItem())
+        .where((oi) => oi != null)
+        .cast<OrderItem>()
+        .toList();
+
+    context.read<BillingBloc>().add(SaveBill(
+          customerName: _msController.text,
+          customerPhone: _moController.text,
+          items: items,
+        ));
+  }
+
+  void _showSavedPopup(Order order) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green.shade600, size: 28),
+            const SizedBox(width: 8),
+            const Text('Bill Saved'),
+          ],
+        ),
+        content: Text(
+          'Order ${order.invoiceNo} has been saved successfully.',
+          style: theme.textTheme.bodyMedium,
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: 'Save Bill',
-            onPressed: () {},
+          OutlinedButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.picture_as_pdf, size: 20),
+            label: const Text('View PDF'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFB71C1C),
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _resetForm();
+            },
+            icon: const Icon(Icons.close, size: 20),
+            label: const Text('Close & Reset'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFB71C1C),
+            ),
           ),
         ],
       ),
-      body: Container(
-        color: const Color(0xFFFEFAF6),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(12),
-                children: [
-                  _Header(),
-                  _CustomerBillInfo(
-                    msController: _msController,
-                    moController: _moController,
-                  ),
-                  _ItemsAndTerms(
-                    itemRows: _itemRows,
-                    onAddRow: _addRow,
-                    onRemoveRow: _removeRow,
-                  ),
-                  const SizedBox(height: 20),
-                  _Total(),
-                ],
-              ),
+    );
+  }
+
+  void _resetForm() {
+    setState(() {
+      _msController.clear();
+      _moController.clear();
+      for (final row in _itemRows) {
+        row.dispose();
+      }
+      _itemRows.clear();
+      _itemRows.add(_ItemRowControllers());
+      _isSaving = false;
+    });
+    context.read<BillingBloc>().add(const ClearBill());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final today = formatDate(DateTime.now());
+    final total = _calculateTotal();
+
+    return BlocListener<BillingBloc, BillingState>(
+      listener: (context, state) {
+        if (state is BillingSaving) {
+          setState(() => _isSaving = true);
+        } else if (state is BillingSaved) {
+          _showSavedPopup(state.order);
+        } else if (state is BillingError) {
+          setState(() => _isSaving = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red.shade700,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 24),
-              child: _Footer(),
+          );
+          context.read<BillingBloc>().add(const ClearBill());
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('New Bill'),
+          actions: [
+            IconButton(
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFFB71C1C),
+                      ),
+                    )
+                  : const Icon(Icons.save),
+              tooltip: 'Save Bill',
+              onPressed: _isSaving ? null : _validateAndSave,
             ),
           ],
+        ),
+        body: Container(
+          color: const Color(0xFFFEFAF6),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(12),
+                  children: [
+                    _Header(),
+                    _CustomerBillInfo(
+                      msController: _msController,
+                      moController: _moController,
+                      date: today,
+                    ),
+                    BlocBuilder<SettingsBloc, SettingsState>(
+                      builder: (context, state) {
+                        final months = state is SettingsLoaded
+                            ? state.settings.guaranteeMonths
+                            : 6;
+                        return _ItemsAndTerms(
+                          itemRows: _itemRows,
+                          onAddRow: _addRow,
+                          onRemoveRow: _removeRow,
+                          guaranteeMonths: months,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _Total(total: total),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                child: _Footer(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -167,10 +352,12 @@ class _Header extends StatelessWidget {
 class _CustomerBillInfo extends StatelessWidget {
   final TextEditingController msController;
   final TextEditingController moController;
+  final String date;
 
   const _CustomerBillInfo({
     required this.msController,
     required this.moController,
+    required this.date,
   });
 
   @override
@@ -185,15 +372,15 @@ class _CustomerBillInfo extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: const Row(
+            child: Row(
               children: [
-                Text(
+                const Text(
                   'Date: ',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '04 Jul 2026',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  date,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -243,11 +430,13 @@ class _ItemsAndTerms extends StatelessWidget {
   final List<_ItemRowControllers> itemRows;
   final VoidCallback onAddRow;
   final void Function(int) onRemoveRow;
+  final int guaranteeMonths;
 
   const _ItemsAndTerms({
     required this.itemRows,
     required this.onAddRow,
     required this.onRemoveRow,
+    required this.guaranteeMonths,
   });
 
   @override
@@ -306,7 +495,7 @@ class _ItemsAndTerms extends StatelessWidget {
     );
     return [
       Text(
-        '\u25cf \u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0  6 months',
+        '\u25cf \u0aae\u0acb\u0a9f\u0ab0 \u0aaa\u0a82\u0aaa \u0a97\u0ac7\u0ab0\u0a82\u0a9f\u0ac0  $guaranteeMonths months',
         style: style,
       ),
       const SizedBox(height: 10),
@@ -463,6 +652,10 @@ class _EditableField extends StatelessWidget {
 }
 
 class _Total extends StatelessWidget {
+  final double total;
+
+  const _Total({required this.total});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -484,7 +677,7 @@ class _Total extends StatelessWidget {
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
-              '\u20B9 —',
+              total > 0 ? formatCurrency(total) : '\u20B9 \u2014',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
