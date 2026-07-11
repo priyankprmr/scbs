@@ -89,7 +89,7 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 24),
               child: _Footer(),
             ),
           ],
